@@ -1,0 +1,31 @@
+name: Schedule sync all
+
+on:
+  schedule:
+    # Every 12 hour.
+    - cron:  '0 */12 * * *'
+
+jobs:
+  deploy-sync:
+    if: github.ref == 'refs/heads/master'
+    name: deploy-sync
+    runs-on: ubuntu-latest
+    strategy:  
+      matrix:
+        environment: [production, staging]
+    container:
+      image: slok/kahoy-helm-example:latest
+      options: --user 0 # Run as root to be able to download the source code.
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/generate.sh
+      - run: ./scripts/k8s-auth.sh
+        env:
+          K8S_CA_B64: ${{secrets.K8S_CA_B64}}
+          K8S_SERVER: ${{secrets.K8S_SERVER}}
+          K8S_SA_TOKEN: ${{secrets.K8S_SA_TOKEN}}
+      - run: ./scripts/deploy.sh sync-run
+        env:
+          MANIFESTS_PATH: "./_gen/${{ matrix.environment }}"
+          ENVIRONMENT: "${{ matrix.environment }}"
+

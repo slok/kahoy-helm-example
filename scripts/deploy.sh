@@ -14,12 +14,16 @@ command -v kahoy >/dev/null 2>&1 || { echo 'Please install kahoy'; exit 1; }
 # deployment steps.
 [ -z "${ENVIRONMENT:-}" ] && echo "ENVIRONMENT env var is required" && exit 1;
 
+# The path where the report will be stored.
+KAHOY_REPORT="${KAHOY_REPORT:-./kahoy-report.json}"
+
 function kahoy_apply() {
     kahoy apply \
         --provider "kubernetes" \
         --kube-provider-id "kahoy-helm-example-${ENVIRONMENT}" \
         --kube-provider-namespace "kahoy-helm-example" \
         --fs-new-manifests-path "${MANIFESTS_PATH}" \
+        --report-path "${KAHOY_REPORT}" \
         --auto-approve
 }
 
