@@ -8,14 +8,11 @@ IFS=$'\t\n'
 command -v kahoy >/dev/null 2>&1 || { echo 'Please install kahoy'; exit 1; }
 
 # Used to load the manifests to be deployed by Kahoy.
-MANIFESTS_PATH="${MANIFESTS_PATH:-}"
-[ -z "${MANIFESTS_PATH}" ] && echo "MANIFESTS_PATH env var is required" && exit 1;
-
+[ -z "${MANIFESTS_PATH:-}" ] && echo "MANIFESTS_PATH env var is required" && exit 1;
 # Environment is used as part of the identifier on Kahoy kubernetes state store.
 # Used in case of different env apps are deployed on the same cluster using multiple
 # deployment steps.
-ENVIRONMENT="${ENVIRONMENT:-}"
-[ -z "${ENVIRONMENT}" ] && echo "ENVIRONMENT env var is required" && exit 1;
+[ -z "${ENVIRONMENT:-}" ] && echo "ENVIRONMENT env var is required" && exit 1;
 
 function kahoy_apply() {
     kahoy apply \
