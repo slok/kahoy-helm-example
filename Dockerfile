@@ -5,6 +5,7 @@ RUN apk --no-cache add \
     curl \
     bash
 
+# Download external dependencies.
 ARG HELM_VERSION="v3.3.4"
 ARG KUBEDOG_VERSION="v0.4.0"
 ARG JQ_VERSION="1.6"
