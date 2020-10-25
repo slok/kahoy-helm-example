@@ -9,7 +9,6 @@ on:
 
 jobs:
   deploy-dry-run:
-    if: github.ref != 'refs/heads/master'
     name: deploy dry-run
     runs-on: ubuntu-latest
     strategy:    
@@ -34,6 +33,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/master'
+    needs: [deploy-dry-run]
     name: deploy
     runs-on: ubuntu-latest
     strategy:    
