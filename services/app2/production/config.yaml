@@ -2,4 +2,4 @@
 httpService:
   public:
     enable: true
-    host: "app2.test-kahoy.valhalla.slok.dev"
+    host: "app2.kahoy-helm-example.valhalla.slok.dev"
