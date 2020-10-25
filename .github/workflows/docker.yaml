@@ -1,0 +1,32 @@
+name: docker-image
+
+on:
+  push:
+    branches:    
+      - master
+    paths:
+      - 'Dockerfile'
+
+jobs:
+  release-docker-image:
+    env:
+      TAG_IMAGE_LATEST: "true"
+      IMAGE_NAME: ${GITHUB_REPOSITORY}
+    name: Release image
+    runs-on: ubuntu-latest
+    steps:
+      # Set up SHA as version.
+      - name: Set tag on VERSION env var
+        run: echo ::set-env name=VERSION::${GITHUB_SHA}
+      - uses: actions/checkout@v2
+      
+      - name: Build image
+        run: make build-image
+      - name: Docker login
+        run: docker login ${DOCKER_HOST} -u ${DOCKER_USER} -p ${DOCKER_TOKEN}
+        env:
+          DOCKER_HOST: ""
+          DOCKER_USER: slok
+          DOCKER_TOKEN: ${{secrets.DOCKER_HUB_TOKEN}}
+      - name: Publish image
+        run: make publish-image
