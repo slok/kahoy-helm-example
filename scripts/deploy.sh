@@ -18,9 +18,8 @@ function kahoy_apply() {
     kahoy apply \
         --provider "kubernetes" \
         --kube-provider-id "kahoy-helm-example-${ENVIRONMENT}" \
-        --kube-provider-namespace "kahoy" \
+        --kube-provider-namespace "kahoy-helm-example" \
         --fs-new-manifests-path "${MANIFESTS_PATH}" \
-        --create-namespace \
         --auto-approve
 }
 

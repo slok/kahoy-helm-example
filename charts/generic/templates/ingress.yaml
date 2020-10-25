@@ -1,0 +1,23 @@
+{{- if .Values.httpService.public.enable }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace | default .Release.Name }}
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    {{ if .Values.httpService.public.auth -}}
+    auth.bilrost.slok.dev/backend: dex
+    {{- end }}
+  labels:
+{{ include "common-labels" . | indent 4}}
+spec:
+  rules:
+    - host: {{ required "host is required" .Values.httpService.public.host | quote }}
+      http:
+        paths:
+          - backend:
+              serviceName: {{ .Release.Name }}
+              servicePort: {{ .Values.httpService.internalPort }}
+{{ end }}

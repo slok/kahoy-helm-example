@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace | default .Release.Name }}
+  labels:
+{{ include "common-labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.scalability.replicas }}
+  minReadySeconds: 30
+  revisionHistoryLimit: 10
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 10%
+      maxSurge: 1
+  selector:
+    matchLabels:
+{{ include "common-labels" . | indent 6 }}
+  template:
+    metadata:
+      annotations:
+        # Force deployment replicas rollout on each change.
+        checksum/config: {{ include (print $.Template.BasePath "/configuration.yaml") . | sha256sum }}
+      labels:
+{{ include "common-labels" . | indent 8 }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}
+      containers:
+        - name: app
+          image: "{{ required "image is required" .Values.image }}:{{ required "tag is required" .Values.tag }}"
+          args: {{ .Values.cmdArgs }}
+          envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}
+          - secretRef:
+              name: {{ .Release.Name }}
+          ports:
+            - containerPort: {{ .Values.httpService.internalPort }}
+              name: http
+              protocol: TCP
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: {{ .Values.resources.memoryMiB }}Mi
+              cpu: {{ .Values.resources.cpuMilli }}m
+            limits:
+              memory: {{ .Values.resources.memoryMiB }}Mi
+              cpu: {{ .Values.resources.cpuMilli }}m
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.livePath }}
+              port: {{ .Values.httpService.internalPort }}
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.readyPath }}
+              port: {{ .Values.httpService.internalPort }}
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
