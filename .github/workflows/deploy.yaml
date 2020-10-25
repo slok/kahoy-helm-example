@@ -1,0 +1,60 @@
+name: deploy
+
+on:
+  push:
+    # Only trigger when services or charts change.
+    paths:
+      - 'services/**'
+      - 'charts/**'
+
+jobs:
+  deploy-dry-run:
+    if: github.ref != 'refs/heads/master'
+    needs: [check]
+    name: deploy dry-run
+    runs-on: ubuntu-latest
+    strategy:    
+      matrix:
+        environment: [production, staging]
+    container:
+      image: slok/kahoy-app-deploy-example:latest
+      options: --user 0 # Run as root to be able to download the source code.
+    env:
+      MANIFESTS_PATH: "./_gen/${{ matrix.environment }}"
+      ENVIRONMENT: "${{ matrix.environment }}"
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/generate.sh
+      - run: ./scripts/k8s-auth.sh
+        env:
+          K8S_CA_B64: ${{secrets.K8S_CA_B64}}
+          K8S_SERVER: ${{secrets.K8S_SERVER}}
+          K8S_SA_TOKEN: ${{secrets.K8S_SA_TOKEN}}
+      - run: ./scripts/deploy.sh dry-run
+      - run: ./scripts/deploy.sh diff
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: [check]
+    name: deploy
+    runs-on: ubuntu-latest
+    strategy:    
+      matrix:
+        environment: [production, staging]
+    container:
+      image: slok/kahoy-app-deploy-example:latest
+      options: --user 0 # Run as root to be able to download the source code.
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/generate.sh
+      - run: ./scripts/k8s-auth.sh
+        env:
+          K8S_CA_B64: ${{secrets.K8S_CA_B64}}
+          K8S_SERVER: ${{secrets.K8S_SERVER}}
+          K8S_SA_TOKEN: ${{secrets.K8S_SA_TOKEN}}
+      - run: touch ./kahoy-report.json && ./scripts/deploy.sh run
+        env:
+          MANIFESTS_PATH: "./_gen/${{ matrix.environment }}"
+          ENVIRONMENT: "${{ matrix.environment }}"
+          KAHOY_REPORT: "./kahoy-report.json"
+      - run: cat ./kahoy-report.json |./scripts/wait.sh
