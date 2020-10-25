@@ -1,0 +1,26 @@
+---
+
+image: "nginx"
+team: "a-team"
+namespace: "kahoy-helm-example"
+
+environment: 
+   key1: val1
+   key2: val2
+
+scalability:
+  replicas: 1
+  maxReplicas: 1
+
+cmdArgs: []
+
+httpService:
+  internalPort: 80
+
+resources:
+  memoryMiB: 15
+  cpuMilli: 15
+
+healthCheck:
+  livePath: /
+  readyPath: /

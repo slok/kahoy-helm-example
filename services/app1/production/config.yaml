@@ -1,0 +1,5 @@
+---
+
+scalability:
+  replicas: 2
+  maxReplicas: 2

@@ -1,0 +1,5 @@
+---
+httpService:
+  public:
+    enable: true
+    host: "app2.test-kahoy.valhalla.slok.dev"

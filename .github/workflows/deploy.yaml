@@ -10,14 +10,13 @@ on:
 jobs:
   deploy-dry-run:
     if: github.ref != 'refs/heads/master'
-    needs: [check]
     name: deploy dry-run
     runs-on: ubuntu-latest
     strategy:    
       matrix:
         environment: [production, staging]
     container:
-      image: slok/kahoy-app-deploy-example:latest
+      image: slok/kahoy-helm-example:latest
       options: --user 0 # Run as root to be able to download the source code.
     env:
       MANIFESTS_PATH: "./_gen/${{ matrix.environment }}"
@@ -35,14 +34,13 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/master'
-    needs: [check]
     name: deploy
     runs-on: ubuntu-latest
     strategy:    
       matrix:
         environment: [production, staging]
     container:
-      image: slok/kahoy-app-deploy-example:latest
+      image: slok/kahoy-helm-example:latest
       options: --user 0 # Run as root to be able to download the source code.
     steps:
       - uses: actions/checkout@v2

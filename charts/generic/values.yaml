@@ -1,0 +1,45 @@
+---
+
+image: ""
+tag: ""
+team: ""
+environmentType: ""
+namespace: "" # If not set, fallback to the name of the release.
+
+environment: {}
+#environment: 
+#    key1: val2
+#    key2: val2
+
+secrets: {}
+#secrets:
+#    key1: val2
+#    key2: val2
+
+scalability:
+  replicas: 3
+  maxReplicas: 6
+  autoscaleCPUPercent: 80
+
+cmdArgs: []
+
+httpService:
+  internalPort: 8080
+  public:
+    enable: false
+    auth: false
+    host: ""
+
+metrics:
+  enable: false
+  prometheus:
+    path: /metrics
+    instance: "prometheus"
+
+resources:
+  memoryMiB: 120
+  cpuMilli: 100
+
+healthCheck:
+  livePath: /healthz/live
+  readyPath: /healthz/ready
